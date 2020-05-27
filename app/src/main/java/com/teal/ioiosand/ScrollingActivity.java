@@ -104,18 +104,24 @@ public class ScrollingActivity extends AppCompatActivity implements IOIOLooperPr
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart");
+
         helper.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
+
         helper.stop();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent");
+
         if((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
             helper.restart();
         }
@@ -141,6 +147,8 @@ public class ScrollingActivity extends AppCompatActivity implements IOIOLooperPr
 
         @Override
         public void setup() throws ConnectionLostException {
+            Log.d(TAG, "setup");
+
             Uart.Parity parity = Uart.Parity.NONE;
             Uart.StopBits stopBit = Uart.StopBits.ONE;
             uartStm = ioio_.openUart(RX_PIN, TX_PIN, 115200, parity, stopBit);
@@ -152,40 +160,60 @@ public class ScrollingActivity extends AppCompatActivity implements IOIOLooperPr
             toast("IOIO Connected");
         }
 
+        byte buffer = (byte) 'A';
+
         @Override
         public void loop() throws ConnectionLostException, InterruptedException  {
+            Log.d(TAG, "loop");
             // Do all our writing here based on whether the state changed in the app
             // between the last state and the next.
             //out.write();
             Log.d(TAG, "Inside run loop.");
-            byte[] buffer = new byte[1];
-            buffer[0] = (byte) 'A';
-            byte[] inBuffer = new byte[1];
-            inBuffer[0] = (byte) 0;
+            byte inBuffer;
+            inBuffer = (byte) 0;
             //Apparently one of the exceptions above extends IOException
             try {
                 Log.d(TAG, "Writing byte to device");
-                stm_out.write(buffer[0]);
-                mout.append(String.valueOf((char) buffer[0]));
+                stm_out.write(buffer);
+                mout.append(String.valueOf((char) buffer));
                 Thread.sleep(10);
-                inBuffer[0] = (byte) other_in.read();
-                sin.append(String.valueOf((char) inBuffer[0]));
+                inBuffer = (byte) other_in.read();
+                sin.append(String.valueOf((char) inBuffer));
             } catch (IOException e) {
-                Log.e(TAG, "EL Command Lost");
+                Log.e(TAG, "Blew up" + e.getStackTrace());
             }
+            buffer++;
+            //Apparently one of the exceptions above extends IOException
+            try {
+                Log.d(TAG, "Writing byte to device");
+                other_out.write(buffer);
+                sout.append(String.valueOf((char) buffer));
+                Thread.sleep(10);
+                inBuffer = (byte) stm_in.read();
+                min.append(String.valueOf((char) inBuffer));
+            } catch (IOException e) {
+                Log.e(TAG, "Blew up" + e.getStackTrace());
+            }
+            buffer++;
+
             toast("IOIO write");
             Thread.sleep(500);
         }
 
         @Override
         public void disconnected() {
+            Log.d(TAG, "disconnect");
+
             try {
                 stm_out.close();
                 stm_in.close();
+                other_in.close();
+                other_out.close();
             } catch (IOException e) {
-                Log.e(TAG, "Output Stream did not close, uart is closing");
+                Log.e(TAG, "Output Stream did not close, uart is closing"+ e.getStackTrace());
             }
             uartStm.close();
+            uartOther.close();
             toast("IOIO disconnected");
         }
 
@@ -204,6 +232,8 @@ public class ScrollingActivity extends AppCompatActivity implements IOIOLooperPr
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Broadcast Receiver");
+
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 synchronized (this) {

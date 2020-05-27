@@ -21,8 +21,10 @@ import ioio.lib.util.android.IOIOService;
 public class UartIoioService extends IOIOService {
 
     public UartIoioService() {
-        IOIO ioio = IOIOFactory.create();
+        ioio_ = IOIOFactory.create();
     }
+
+    IOIO ioio_;
 
     @Override
     protected IOIOLooper createIOIOLooper() {
@@ -106,7 +108,7 @@ public class UartIoioService extends IOIOService {
             // User clicked the notification. Need to stop the service.
             nm.cancel(0);
             stopSelf();
-        } else {
+        } else if (intent.getAction().equals("start")) {
             // Service starting. Create a notification.
             // setup notification to stop
         }

@@ -30,6 +30,36 @@
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/masterOut"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="masterOut" />
+
+                <TextView
+                    android:id="@+id/masterIn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="masterIn" />
+
+                <TextView
+                    android:id="@+id/slaveOut"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="slaveOut" />
+
+                <TextView
+                    android:id="@+id/slaveIn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="slaveIn" />
+            </LinearLayout>
+
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
